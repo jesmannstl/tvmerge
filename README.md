@@ -16,16 +16,16 @@ See [Command line arguments](#command-line-arguments) for configuration options.
 
 ### Command line arguments
 
-| Argument                | Description                                              |
-| ----------------------- | -------------------------------------------------------- |
-| `-i, --input <file...>` | Input XMLTV file(s), space-separated or use `--folder`   |
-| `-f, --folder <dir>`    | Directory to merge all .xml files from                   |
-| `-o, --output <file>`   | Output XMLTV file (Required)                             |
-| `-t, --doctype`         | Add DOCTYPE to output file                               |
-| `--fast`                | Enable fast mode (no global sorting/deduplication)       |
-| `--gzip`                | Compress output as .gz                                   |
-| `--preserve-order`      | Preserve original input file order                       |
-| `-q, --quiet`           | Suppress output messages                                 |
+| Argument                | Description                                                            |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `-i, --input <file...>` | Input XMLTV file(s), space-separated or use `--folder` .xml or .xml.gz |
+| `-f, --folder <dir>`    | Directory to merge all .xml files from                                 |
+| `-o, --output <file>`   | Output XMLTV file (Required)                                           |
+| `-t, --doctype`         | Add DOCTYPE to output file                                             |
+| `--fast`                | Enable fast mode (no global sorting/deduplication)                     |
+| `--gzip`                | Compress output as .gz (automatic if you specify .gz output name)      |
+| `--preserve-order`      | Preserve original input file order                                     |
+| `-q, --quiet`           | Suppress output messages                                               |
 
 ## Setup and running in intervals
 
