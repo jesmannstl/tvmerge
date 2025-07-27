@@ -35,3 +35,10 @@ You can run tvmerge natively on your system.
 
 
 `node tv_merge.js [your_options_here]`
+
+### Examples
+
+`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml`
+`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml file3.xml -o merge.xml`
+`node tv_merge.js --fast --preserve-order -f folder -o merge.xml`
+`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml.gz`
