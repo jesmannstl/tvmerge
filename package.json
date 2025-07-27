@@ -1,0 +1,20 @@
+{
+  "name": "tv-merge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tv_merge.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "commander": "^14.0.0",
+    "fast-xml-parser": "^5.2.5",
+    "luxon": "^3.7.1",
+    "sax": "^1.4.1"
+  }
+}
