@@ -17,15 +17,14 @@ See [Command line arguments](#command-line-arguments) for configuration options.
 ### Command line arguments
 
 | Argument                | Description                                                            |
-| ----------------------- | ---------------------------------------------------------------------- |
-| `-i, --input <file...>` | Input XMLTV file(s), space-separated or use `--folder` .xml or .xml.gz |
-| `-f, --folder <dir>`    | Directory to merge all .xml files from                                 |
-| `-o, --output <file>`   | Output XMLTV file (Required)                                           |
-| `-t, --doctype`         | Add DOCTYPE to output file                                             |
-| `--fast`                | Enable fast mode (no global sorting/deduplication)                     |
-| `--gzip`                | Compress output as .gz (automatic if you specify .gz output name)      |
-| `--preserve-order`      | Preserve original input file order                                     |
-| `-q, --quiet`           | Suppress output messages                                               |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `-i, --input <file...>` | Input XMLTV file(s), space-separated or use `--folder` .xml or .xml.gz   |
+| `-f, --folder <dir>`    | Directory to merge all .xml files from                                   |
+| `-o, --output <file>`   | Output XMLTV file (Required)                                             |
+| `-t, --doctype`         | Add DOCTYPE to output file                                               |
+| `--dedupe <mode>`       | Removes duplicates on same channel/start `first` (default), `last` entry |
+| `--gzip`                | Compress output as .gz (automatic if you specify .gz output name)        |
+| `-q, --quiet`           | Suppress output messages                                                 |
 
 ## Setup and running in intervals
 
@@ -38,10 +37,11 @@ You can run tvmerge natively on your system.
 
 ### Examples
 
-`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml`
+`node tv_merge.js -i file1.xml file2.xml -o merge.xml`
 
-`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml file3.xml -o merge.xml`
+`node tv_merge.js -i file1.xml file2.xml file3.xml -o merge.xml`
 
-`node tv_merge.js --fast --preserve-order -f folder -o merge.xml`
+`node tv_merge.js -f folder -o merge.xml`
 
 `node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml.gz`
+
