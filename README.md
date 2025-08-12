@@ -44,6 +44,7 @@ You can run tvmerge natively on your system.
 
 `node tv_merge.js -f folder -o merge.xml`
 
-`node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml.gz`
+`node tv_merge.js --tmp-dir F:\tvmerge_temp -i file1.xml file2.xml -o merge.xml.gz`
+
 
 
