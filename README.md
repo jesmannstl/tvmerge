@@ -25,6 +25,7 @@ See [Command line arguments](#command-line-arguments) for configuration options.
 | `--dedupe <mode>`       | Removes duplicates on same channel/start `first` (default), `last` entry |
 | `--gzip`                | Compress output as .gz (automatic if you specify .gz output name)        |
 | `-q, --quiet`           | Suppress output messages                                                 |
+| `--tmp-dir <dir>`       | Set temporary directory to process files                                 |
 
 ## Setup and running in intervals
 
@@ -44,4 +45,5 @@ You can run tvmerge natively on your system.
 `node tv_merge.js -f folder -o merge.xml`
 
 `node tv_merge.js --fast --preserve-order -i file1.xml file2.xml -o merge.xml.gz`
+
 
