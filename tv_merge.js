@@ -12,9 +12,10 @@ const readline = require('readline');
 // tv_merge.js — channels-first; programmes sorted by channel+start (with dedupe)
 //  - Supports .xml and .xml.gz input
 //  - Auto .gz output if --gzip or output ends with .gz
-//  - Streaming capture with self-closing empty tags
+//  - Streaming capture with self-closing empty tags + pretty indent
 //  - Per-channel JSONL buffering + external sort (chunked) to keep memory low
 //  - Dedupe by (channel,start) during k-way merge: --dedupe first|last
+//  - Temp files location configurable via --tmp-dir / env
 // ------------------------------------------------------------
 
 const program = new Command();
@@ -25,10 +26,18 @@ program
   .option('-t, --doctype', 'Add DOCTYPE to output file')
   .option('--gzip', 'Force gzip output regardless of extension')
   .option('--dedupe <mode>', 'Deduplicate programmes per channel by start: first|last', 'first')
+  .option('--tmp-dir <dir>', 'Directory for temporary files (defaults to os.tmpdir())')
   .option('-q, --quiet', 'Suppress console output')
   .parse(process.argv);
 
 const options = program.opts();
+
+// Decide where to put temp files (flag > env > OS default)
+const TMP_BASE = (() => {
+  const cand = options.tmpDir || process.env.TV_MERGE_TMP || process.env.TEMP || process.env.TMP || os.tmpdir();
+  try { if (!fs.existsSync(cand)) fs.mkdirSync(cand, { recursive: true }); } catch (_) {}
+  return cand;
+})();
 
 // --- State ---
 const channelXml = new Map();            // channelId -> raw <channel> xml
@@ -57,7 +66,7 @@ function san(id) {
 
 function getProgWriter(channelId) {
   if (!channelProgFiles.has(channelId)) {
-    const tmpPath = path.join(os.tmpdir(), `tvmerge-${process.pid}-${Date.now()}-${san(channelId)}.jsonl`);
+    const tmpPath = path.join(TMP_BASE, `tvmerge-${process.pid}-${Date.now()}-${san(channelId)}.jsonl`);
     const ws = fs.createWriteStream(tmpPath, { encoding: 'utf8' });
     channelProgFiles.set(channelId, { path: tmpPath, ws });
   }
