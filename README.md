@@ -26,6 +26,7 @@ See [Command line arguments](#command-line-arguments) for configuration options.
 | `--gzip`                | Compress output as .gz (automatic if you specify .gz output name)        |
 | `-q, --quiet`           | Suppress output messages                                                 |
 | `--tmp-dir <dir>`       | Set temporary directory to process files                                 |
+| `--sortname`            | Sort output by `<display name>` instead of channel id                    |
 
 ## Setup and running in intervals
 
@@ -45,6 +46,7 @@ You can run tvmerge natively on your system.
 `node tv_merge.js -f folder -o merge.xml`
 
 `node tv_merge.js --tmp-dir F:\tvmerge_temp -i file1.xml file2.xml -o merge.xml.gz`
+
 
 
 
