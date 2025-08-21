@@ -51,7 +51,7 @@ const TMP_BASE = (() => {
 
 // ---------- State ----------
 const channelXml = new Map();       // channelId -> raw <channel> xml
-const channelSortName = new Map();  // channelId -> best display-name for sorting
+const channelSortName = new Map();  // channelId -> preferred display-name for sorting
 const channelProgFiles = new Map(); // channelId -> { path, ws }
 let totalProgrammes = 0;            // pre-dedupe for info
 let totalChannels = 0;
@@ -159,7 +159,6 @@ function streamFile(file, progressBar) {
         pieces = []; stack = []; return;
       }
       if (capType) {
-        // track display-name content when inside a <channel>
         const lnameCur = localName(node.name);
         if (capType === 'channel' && lnameCur === 'display-name') displayNameBuffer = '';
         pushOpen(node.name, node.attributes); markParentHasContent();
@@ -170,7 +169,6 @@ function streamFile(file, progressBar) {
       if (!capType) return;
       if (text && text.length) {
         if (stack.length) stack[stack.length - 1].hasContent = true;
-        // accumulate raw for display-name sorting
         const top = stack.length ? stack[stack.length - 1] : null;
         if (capType === 'channel' && top && localName(top.name) === 'display-name') {
           displayNameBuffer += text;
@@ -183,6 +181,24 @@ function streamFile(file, progressBar) {
       if (!capType) return;
       if (stack.length) {
         const el = stack.pop();
+        if (capType === 'channel' && localName(el.name) === 'display-name') {
+          const cand = (displayNameBuffer || '').trim();
+          if (cand) {
+            const prev = channelSortName.get(currentChannelId);
+            const candHasLetters = /[A-Za-z]/.test(cand);
+            const candStartsDigit = /^\d/.test(cand);
+            if (!prev) {
+              channelSortName.set(currentChannelId, cand);
+            } else {
+              const prevHasLetters = /[A-Za-z]/.test(prev);
+              const prevStartsDigit = /^\d/.test(prev);
+              if ((!prevHasLetters && candHasLetters) || (prevStartsDigit && !candStartsDigit)) {
+                channelSortName.set(currentChannelId, cand);
+              }
+            }
+          }
+        }
+
         if (!el.hasContent) pieces[el.idx] = pieces[el.idx].replace(/>$/, ' />'); else pushClose(el.name);
         return;
       }
@@ -379,7 +395,7 @@ async function kWayMergeChunks(chunks, output, dedupeMode = 'first', onWrite = (
     // Channels first (sorted by id for stability)
     let channelIds = Array.from(channelXml.keys());
 if (useSortName) {
-  channelIds.sort((a, b) => (channelSortName.get(a) || a).localeCompare((channelSortName.get(b) || b), undefined, { sensitivity: 'base', numeric: true }));
+  channelIds.sort((a, b) => (channelSortName.get(a) || String(a)).localeCompare((channelSortName.get(b) || String(b)), undefined, { sensitivity: 'base', numeric: true }));
 } else {
   channelIds.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
 }
