@@ -35,10 +35,12 @@ program
   .option('--lenient', 'Tolerate minor XML errors (resume parsing on recoverable errors)')
   .option('--skip-bad', 'On fatal XML parse error in a file, skip the rest of that file instead of aborting')
   .option('--debug-scan', 'Log first 20 element names per file (for diagnosing parsing)')
+  .option('--sortname', 'Sort channels alphabetically by display-name (call sign/name)')
   .option('-q, --quiet', 'Suppress console output')
   .parse(process.argv);
 
 const options = program.opts();
+const useSortName = Boolean(options.sortname) || (/^true$/i.test(process.env.SORTNAME || ''));
 
 // ---------- Temp base ----------
 const TMP_BASE = (() => {
@@ -49,6 +51,7 @@ const TMP_BASE = (() => {
 
 // ---------- State ----------
 const channelXml = new Map();       // channelId -> raw <channel> xml
+const channelSortName = new Map();  // channelId -> best display-name for sorting
 const channelProgFiles = new Map(); // channelId -> { path, ws }
 let totalProgrammes = 0;            // pre-dedupe for info
 let totalChannels = 0;
@@ -107,6 +110,7 @@ function streamFile(file, progressBar) {
     let pieces = [];    // array of strings (parts of XML)
     let stack = [];     // [{ name, idx, hasContent }]
     let currentChannelId = '';
+    let displayNameBuffer = '';
     let currentProgChannel = '';
     let currentProgStart = '';
 
@@ -154,12 +158,25 @@ function streamFile(file, progressBar) {
         rootOpen = `  ${openTag('programme', { start: currentProgStart, stop: node.attributes.stop || '', channel: currentProgChannel })}`;
         pieces = []; stack = []; return;
       }
-      if (capType) { pushOpen(node.name, node.attributes); markParentHasContent(); }
+      if (capType) {
+        // track display-name content when inside a <channel>
+        const lnameCur = localName(node.name);
+        if (capType === 'channel' && lnameCur === 'display-name') displayNameBuffer = '';
+        pushOpen(node.name, node.attributes); markParentHasContent();
+      }
     });
 
     parser.on('text', (text) => {
       if (!capType) return;
-      if (text && text.length) { if (stack.length) stack[stack.length - 1].hasContent = true; pieces.push(escapeXml(text)); }
+      if (text && text.length) {
+        if (stack.length) stack[stack.length - 1].hasContent = true;
+        // accumulate raw for display-name sorting
+        const top = stack.length ? stack[stack.length - 1] : null;
+        if (capType === 'channel' && top && localName(top.name) === 'display-name') {
+          displayNameBuffer += text;
+        }
+        pieces.push(escapeXml(text));
+      }
     });
 
     parser.on('closetag', () => {
@@ -360,7 +377,12 @@ async function kWayMergeChunks(chunks, output, dedupeMode = 'first', onWrite = (
     output.write('<tv>\n');
 
     // Channels first (sorted by id for stability)
-    const channelIds = Array.from(channelXml.keys()).sort((a, b) => String(a).localeCompare(String(b)));
+    let channelIds = Array.from(channelXml.keys());
+if (useSortName) {
+  channelIds.sort((a, b) => (channelSortName.get(a) || a).localeCompare((channelSortName.get(b) || b), undefined, { sensitivity: 'base', numeric: true }));
+} else {
+  channelIds.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+}
     if (!options.quiet) console.log(`Writing ${channelIds.length} channel(s)...`);
 
     let channelsBar = null;
@@ -411,3 +433,4 @@ async function kWayMergeChunks(chunks, output, dedupeMode = 'first', onWrite = (
     process.exit(1);
   }
 })();
+
